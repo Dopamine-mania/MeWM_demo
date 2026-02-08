@@ -1,0 +1,24 @@
+# Data / outputs (do NOT push)
+main/data/
+main/work/
+客户需求/
+
+# Medical imaging raw files
+*.dcm
+
+# OS / editor junk
+.DS_Store
+**/.DS_Store
+.ipynb_checkpoints/
+**/.ipynb_checkpoints/
+
+# Python
+__pycache__/
+**/__pycache__/
+.pytest_cache/
+*.pyc
+
+# Conda / venv
+.venv/
+venv/
+

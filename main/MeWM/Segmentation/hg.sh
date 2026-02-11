@@ -22,8 +22,9 @@
 # pip install torch==1.12.1+cu113 torchvision==0.13.1+cu113 torchaudio==0.12.1 --extra-index-url https://download.pytorch.org/whl/cu113
 # pip install -r ../requirements.txt
 
-healthy_datapath=/home/yyang303/project/DiffTumor/HealthyCT/HealthyCT/healthy_ct/
-datapath=/mnt/realccvl15/yyang303/ucsf/DiffTumor/logs/registered/
+ROOT_DIR="$(cd "$(dirname "$0")" && pwd)"
+healthy_datapath=${HEALTHY_DATA_ROOT:-"$ROOT_DIR/../data/healthy_ct"}
+datapath=${DATA_ROOT:-"$ROOT_DIR/../data"}
 cache_rate=1.0
 batch_size=8
 val_every=20
@@ -43,7 +44,7 @@ backbone=nnunet
 logdir="runs/hcc4.fold$fold.$backbone"
 datafold_dir=cross_eval/hcc_aug_data_fold/
 dist=$((RANDOM % 99999 + 10000))
-pretrained_dir="/home/yyang303/project/DiffTumor/STEP3.SegmentationModel/nnunet_synt_liver_tumors.pt"
+pretrained_dir="${PRETRAINED_DIR:-$ROOT_DIR/../checkpoints/nnunet_synt_liver_tumors.pt}"
 python -W ignore main.py --model_name $backbone --cache_rate $cache_rate --dist-url=tcp://127.0.0.1:$dist --workers $workers --max_epochs 2000 --val_every $val_every --batch_size=$batch_size --save_checkpoint --distributed --noamp --organ_type $organ --organ_model $organ --tumor_type tumor --fold $fold --ddim_ts 50 --logdir=$logdir --healthy_data_root $healthy_datapath --data_root $datapath --datafold_dir $datafold_dir --resume_ckpt --pretrained_dir $pretrained_dir
 
 

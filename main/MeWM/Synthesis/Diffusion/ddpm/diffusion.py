@@ -394,7 +394,8 @@ def cosine_beta_schedule(timesteps, s=0.008):
     betas = 1 - (alphas_cumprod[1:] / alphas_cumprod[:-1])
     return torch.clip(betas, 0, 0.9999)
 
-cache_dir = "/home/yyang303/project/Synthesis/"
+import os
+cache_dir = os.path.join(os.path.dirname(__file__), "..", "outputs")
 import torch
 import torch.nn as nn
 
@@ -1452,7 +1453,7 @@ class Trainer(object):
         step_start_ema=2000,
         update_ema_every=10,
         save_and_sample_every=1000,
-        results_folder='/home/yyang303/project/Synthesis/outputs/',
+        results_folder=os.path.join(os.path.dirname(__file__), "..", "outputs"),
         num_sample_rows=1,
         max_grad_norm=None,
         num_workers=20,

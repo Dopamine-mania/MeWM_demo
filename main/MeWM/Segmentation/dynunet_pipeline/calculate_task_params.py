@@ -73,7 +73,7 @@ if __name__ == "__main__":
         "-root_dir",
         "--root_dir",
         type=str,
-        default="/home/v-qichen2/qic/data/CT/10_Decathlon/",
+        default="./data",
         help="dataset path",
     )
     parser.add_argument(

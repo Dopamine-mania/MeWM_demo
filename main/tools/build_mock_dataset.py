@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-用现有 DICOM（即便只有术前）构造 2 例 Mock 数据，生成符合 10 列 TSV 规范的列表文件。
+用现有 DICOM（即便只有术前）构造若干例 Mock 数据（默认 5），生成符合 10 列 TSV 规范的列表文件。
 
 做法：
 - 从 dicom_root 下自动挑选 2 个“切片数足够”的 CT series 目录
@@ -112,8 +112,9 @@ def _write_tsv_line(cols: list[str]) -> str:
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--dicom_root", type=str, default="main/data/数据", help="DICOM 根目录（会自动选 2 个 series）")
+    ap.add_argument("--dicom_root", type=str, default="main/data/数据", help="DICOM 根目录（会自动选若干 series）")
     ap.add_argument("--out_root", type=str, default="main/work/mock_data", help="Mock 数据输出根目录")
+    ap.add_argument("--num_cases", type=int, default=5, help="生成多少组 Mock 样本（默认 5）")
     ap.add_argument("--seed", type=int, default=1234)
     args = ap.parse_args()
 
@@ -125,10 +126,13 @@ def main() -> None:
     out_root.mkdir(parents=True, exist_ok=True)
 
     series_dirs = _find_series_dirs(dicom_root)
-    if len(series_dirs) < 2:
-        raise SystemExit(f"[ERROR] 在 {dicom_root} 下找不到足够的 CT series 目录（需要至少 2 个且每个 >=40 张 .dcm）")
+    if len(series_dirs) < 1:
+        raise SystemExit(f"[ERROR] 在 {dicom_root} 下找不到 CT series 目录（需要至少 1 个且每个 >=40 张 .dcm）")
 
-    chosen = series_dirs[:2]
+    # Reuse series if not enough unique dirs.
+    chosen = []
+    for i in range(args.num_cases):
+        chosen.append(series_dirs[i % len(series_dirs)])
     print("[INFO] chosen series dirs:")
     for d in chosen:
         print("  -", d)
@@ -159,8 +163,16 @@ def main() -> None:
         ct_img = nib.load(str(pre_ct))
         ct = ct_img.get_fdata(dtype=np.float32)
 
-        pre_cfg = DummyMaskConfig(tumor_radius_vox=10, tumor_offset_vox=(0, 0, 0))
-        post_cfg = DummyMaskConfig(tumor_radius_vox=10, tumor_offset_vox=(2, -3, 1))
+        # Randomized tumor geometry per case to simulate different shapes.
+        base_r = random.randint(6, 14)
+        pre_cfg = DummyMaskConfig(
+            tumor_radius_vox=base_r,
+            tumor_offset_vox=(random.randint(-4, 4), random.randint(-4, 4), random.randint(-2, 2)),
+        )
+        post_cfg = DummyMaskConfig(
+            tumor_radius_vox=max(4, base_r + random.randint(-3, 3)),
+            tumor_offset_vox=(random.randint(-6, 6), random.randint(-6, 6), random.randint(-3, 3)),
+        )
         pre_m = build_dummy_mask(ct, pre_cfg)
         post_m = build_dummy_mask(ct, post_cfg)
 

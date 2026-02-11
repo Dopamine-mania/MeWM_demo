@@ -2,9 +2,9 @@ name: liver_tumor_train
 image_channels: 1
 fold: 0
 dataset_list: ['liver']
-data_root_path: /mnt/realccvl15/yyang303/ucsf/DiffTumor/logs/registered2/
-label_root_path: /mnt/realccvl15/yyang303/ucsf/DiffTumor/logs/registered2/
-data_txt_path: cross_eval/
+data_root_path: ./data
+label_root_path: ./data
+data_txt_path: ./cross_eval/
 dist: False
 batch_size: 1
 num_workers: 0

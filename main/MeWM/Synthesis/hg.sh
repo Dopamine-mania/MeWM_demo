@@ -7,8 +7,9 @@ wget https://huggingface.co/Alena-Xinran/DescriptiveTumor/resolve/main/descripti
 wget https://huggingface.co/Alena-Xinran/DescriptiveTumor/resolve/main/descriptivetumor2/kidney.pt
 cd ../..
 
-healthy_datapath=/data/AbdomenAtlas1.1Mini/
-datapath=/data/three_tumor_datasets/
+ROOT_DIR="$(cd "$(dirname "$0")" && pwd)"
+healthy_datapath=${HEALTHY_DATA_ROOT:-"$ROOT_DIR/../data/healthy_ct"}
+datapath=${DATA_ROOT:-"$ROOT_DIR/../data"}
 cache_rate=1.0
 batch_size=4
 val_every=50

@@ -1,6 +1,5 @@
 from monai.transforms import (
     AsDiscrete,
-    AddChanneld,
     Compose,
     CropForegroundd,
     LoadImaged,
@@ -19,6 +18,18 @@ from monai.transforms import (
     RandZoomd,
     RandCropByLabelClassesd,
 )
+try:
+    from monai.transforms import AddChanneld as _AddChanneld
+
+    def AddChanneld(*args, **kwargs):  # type: ignore
+        return _AddChanneld(*args, **kwargs)
+
+except ImportError:
+    from monai.transforms import EnsureChannelFirstd as _EnsureChannelFirstd
+
+    def AddChanneld(*args, **kwargs):  # type: ignore
+        kwargs.setdefault("channel_dim", "no_channel")
+        return _EnsureChannelFirstd(*args, **kwargs)
 
 import collections.abc
 import math
@@ -497,9 +508,13 @@ def choose_different_value(x, num_samples):
     return {**x, "text": current_choice}
 
 import random
+import os
 def get_loader(args):
-    # 加载临床数据
-    clinical_data = load_clinical_data("/home/yyang303/project/Survival/data/HCC_clinical_data.csv")
+    # Load clinical data if provided; otherwise fallback to empty dict.
+    clinical_data = {}
+    clinical_path = getattr(args, "clinical_data_path", None) or os.getenv("CLINICAL_DATA_PATH", "")
+    if clinical_path and os.path.exists(clinical_path):
+        clinical_data = load_clinical_data(clinical_path)
     
     def check_shapes(stage):
         def _check_shapes(data):

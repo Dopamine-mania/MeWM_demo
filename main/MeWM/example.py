@@ -134,7 +134,7 @@ class Policy:
 
 
 class SegmentationModel(nn.Module):
-    def __init__(self, model_path):
+    def __init__(self, model_path=None):
         super(SegmentationModel, self).__init__()
         task_id = 'custom'
         kernels, strides = get_kernels_strides(task_id)
@@ -149,7 +149,10 @@ class SegmentationModel(nn.Module):
             deep_supervision=False,
             deep_supr_num=deep_supr_num[task_id],
         )
-        self.model.load_state_dict(torch.load(model_path)['state_dict'])
+        if model_path and os.path.exists(model_path):
+            self.model.load_state_dict(torch.load(model_path, map_location="cpu")['state_dict'])
+        else:
+            print(f"[WARN] Segmentation weight not found: {model_path}. Using random init.")
 
     def forward(self, x):
         seg_pred = self.model(x)
@@ -180,14 +183,16 @@ class TumorGenerativeWorldModel(nn.Module):
 
 
 class InverseDynamics(nn.Module):
-    def __init__(self, model_path):
+    def __init__(self, model_path=None):
         super(InverseDynamics, self).__init__()
         from Survival.config import create_arg_parser
         from Survival.model.aggregator_wMask import aggregator_wMask
         args = create_arg_parser()
         self.model = aggregator_wMask(args)
-        loc = "cuda:0"
-        self.model.load_state_dict(torch.load(model_path, map_location=loc)["state_dict"])
+        if model_path and os.path.exists(model_path):
+            self.model.load_state_dict(torch.load(model_path, map_location="cpu")["state_dict"])
+        else:
+            print(f"[WARN] Survival weight not found: {model_path}. Using random init.")
 
     def forward(self, x, gen_x, tumor_mask, pred_mask):
         risk_score,_,_,_ = self.model([x, gen_x], [tumor_mask, pred_mask])
@@ -429,7 +434,11 @@ if __name__ == "__main__":
         hseg_model = MockSegmentationModel().to(device).eval()
         hsurv_model = MockInverseDynamics().to(device).eval()
     else:
-        fgm_model = TumorGenerativeWorldModel(device=str(device), cfg="Synthesis/model/ddpm.yaml").to(device).eval()
+        try:
+            fgm_model = TumorGenerativeWorldModel(device=str(device), cfg="Synthesis/model/ddpm.yaml").to(device).eval()
+        except Exception as e:
+            print(f"[WARN] FGM model init failed, fallback to mock. Reason: {e}")
+            fgm_model = MockTumorGenerativeWorldModel().to(device).eval()
         hsurv_model = InverseDynamics(model_path="checkpoint_best.pth.tar").to(device).eval()
         hseg_model = SegmentationModel(model_path="Segmentation/runs/hcc.fold0.nnunet/model.pt").to(device).eval()
 
@@ -464,8 +473,10 @@ if __name__ == "__main__":
     if args.policy == "openai":
         key = args.openai_api_key or os.getenv("OPENAI_API_KEY")
         if not key:
-            raise SystemExit("[ERROR] policy=openai 需要提供 --openai_api_key 或设置环境变量 OPENAI_API_KEY")
-        client = Policy(api_key=key)
+            print("[WARN] policy=openai 但未提供 key，自动降级为 mock。")
+            client = MockPolicy()
+        else:
+            client = Policy(api_key=key)
     else:
         client = MockPolicy()
     

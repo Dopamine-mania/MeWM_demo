@@ -77,8 +77,8 @@ CT_id  Label_id  t1  t2  ...  t100
 ```bash
 cd Diffusion/
 vqgan_ckpt="pretrained_models/AutoencoderModel.ckpt" # your-datapath
-datapath="/ccvl/net/ccvl15/xinran/CT/" # your-datapath
-tumorlabel="/ccvl/net/ccvl15/xinran/Tumor/liver/" # your-datapath
+datapath="/path/to/CT/" # your-datapath
+tumorlabel="/path/to/Tumor/liver/" # your-datapath
 python train.py dataset.name=liver_tumor dataset.data_root_path=$datapath dataset.label_root_path=$tumorlabel dataset.dataset_list=['liver'] dataset.uniform_sample=False model.results_folder_postfix="liver"  model.vqgan_ckpt=$vqgan_ckpt
 ```
 
@@ -159,8 +159,8 @@ cd ../..
 ```bash
 cd Segmentation
 
-healthy_datapath="/ccvl/net/ccvl15/xinran/" # your-datapath
-datapath="/ccvl/net/ccvl15/xinran/" # your-datapath
+healthy_datapath="/path/to/healthy/" # your-datapath
+datapath="/path/to/data/" # your-datapath
 cache_rate=1.0
 batch_size=12
 val_every=50
@@ -178,7 +178,7 @@ python -W ignore main.py --model_name $backbone --cache_rate $cache_rate --dist-
 
 ```bash
 cd Segmentation
-datapath="/ccvl/net/ccvl15/xinran/" #your-datapath
+datapath="/path/to/data/" #your-datapath
 organ=liver
 fold=0
 datafold_dir=cross_eval/"$organ"_aug_data_fold/

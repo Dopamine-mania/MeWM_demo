@@ -74,7 +74,7 @@ def create_datalist(
 if __name__ == "__main__":
     parser = ArgumentParser(formatter_class=ArgumentDefaultsHelpFormatter)
 
-    parser.add_argument("-input_dir", "--input_dir", type=str, default="/workspace/data/medical/")
+    parser.add_argument("-input_dir", "--input_dir", type=str, default="./data")
     parser.add_argument("-output_dir", "--output_dir", type=str, default="config/")
     parser.add_argument("-task_id", "--task_id", type=str, default="04", help="task 01 to 10")
     parser.add_argument("-num_folds", "--num_folds", type=int, default=5, help="number of folds")

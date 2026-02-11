@@ -11,7 +11,7 @@ dist=$((RANDOM % 99999 + 10000))
 #     --model_CT resnetMC3_18 \
 #     --aggregator TransMIL_seperate \
 #     --gpu 0,1,2,3 \
-#     --test_pth '/home/yyang303/project/Survival/results/SavedModels/modality(1)/resnetMC3_18_wMask(TransMIL_seperate)/[0]2025-02-14-00:31:37/checkpoint_best.pth.tar'
+#     --test_pth '/path/to/checkpoint_best.pth.tar'
 
 python -W ignore test_ddp.py \
     --dist-url tcp://127.0.0.1:$dist \

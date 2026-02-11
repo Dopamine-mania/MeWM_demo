@@ -1,6 +1,5 @@
 from monai.transforms import (
     AsDiscrete,
-    AddChanneld,
     Compose,
     CropForegroundd,
     LoadImaged,
@@ -19,6 +18,18 @@ from monai.transforms import (
     RandZoomd,
     RandCropByLabelClassesd,
 )
+try:
+    from monai.transforms import AddChanneld as _AddChanneld
+
+    def AddChanneld(*args, **kwargs):  # type: ignore
+        return _AddChanneld(*args, **kwargs)
+
+except ImportError:
+    from monai.transforms import EnsureChannelFirstd as _EnsureChannelFirstd
+
+    def AddChanneld(*args, **kwargs):  # type: ignore
+        kwargs.setdefault("channel_dim", "no_channel")
+        return _EnsureChannelFirstd(*args, **kwargs)
 
 import collections.abc
 import math

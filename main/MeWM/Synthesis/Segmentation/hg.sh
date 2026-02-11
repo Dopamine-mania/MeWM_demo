@@ -1,7 +1,8 @@
 export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
 
-healthy_datapath=/ccvl/net/ccvl15/zzhou82/data/AbdomenAtlas/image_mask/AbdomenAtlas1.1Mini/AbdomenAtlas1.1Mini/
-datapath=/ccvl/net/ccvl15/xinran/
+ROOT_DIR="$(cd "$(dirname "$0")" && pwd)"
+healthy_datapath=${HEALTHY_DATA_ROOT:-"$ROOT_DIR/../../data/healthy_ct"}
+datapath=${DATA_ROOT:-"$ROOT_DIR/../../data"}
 cache_rate=1.0
 batch_size=4
 val_every=50
